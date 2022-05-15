@@ -2,7 +2,6 @@ package letscode.gdx;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -14,11 +13,16 @@ import java.util.stream.IntStream;
 
 public class Starter extends ApplicationAdapter {
 	SpriteBatch batch;
-	KeyBoardAdapter inputProcessor = new KeyBoardAdapter();
-	Panzer player;
+	private final KeyBoardAdapter inputProcessor;
+	private Panzer player;
 	private Integer count = 1;
-	private List<Panzer> enemies = new ArrayList<>();
-	
+	private final List<Panzer> enemies = new ArrayList<>();
+	private MessageSender messageSender;
+
+	public Starter(InputState inputState) {
+		this.inputProcessor = new KeyBoardAdapter(inputState);
+	}
+
 	@Override
 	public void create () {
 		Gdx.input.setInputProcessor(inputProcessor);
@@ -53,5 +57,16 @@ public class Starter extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		player.dispose();
+	}
+
+	public void setMessageSender(MessageSender messageSender) {
+		this.messageSender = messageSender;
+	}
+
+	public void handleTimer() {
+		if(inputProcessor != null){
+			InputState playerState = inputProcessor.updateAndGetInputState(player.getOrigin());
+			messageSender.sendMessage(playerState);
+		}
 	}
 }

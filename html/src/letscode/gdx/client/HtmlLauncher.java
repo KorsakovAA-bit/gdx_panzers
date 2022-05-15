@@ -3,7 +3,9 @@ package letscode.gdx.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
+import com.google.gwt.user.client.Timer;
 import letscode.gdx.Starter;
+import letscode.gdx.client.dto.InputStateImpl;
 import letscode.gdx.client.ws.EventListenerCallback;
 import letscode.gdx.client.ws.WebSocket;
 
@@ -31,12 +33,30 @@ public class HtmlLauncher extends GwtApplication {
                 }-*/
         ;
 
+        private native String toJson(Object obj)
+                /*-{
+                        return JSON.stringify(obj);
+                }-*/
+        ;
+
         @Override
         public ApplicationListener createApplicationListener () {
                 WebSocket client = getWebSocket("ws://192.168.1.6:9000/ws");
                 AtomicBoolean once = new AtomicBoolean(false);
 
-                Starter starter = new Starter();
+                Starter starter = new Starter(new InputStateImpl() );
+                starter.setMessageSender(message -> {
+                        client.send(toJson(message));
+                });
+
+                Timer timer = new Timer() {
+                        @Override
+                        public void run() {
+                                starter.handleTimer();
+                        }
+                };
+                timer.scheduleRepeating(1000);
+
                 EventListenerCallback callback = event -> {
                         if (!once.get()) {
                                 client.send("hello");
