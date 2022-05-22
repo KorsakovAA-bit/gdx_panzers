@@ -77,4 +77,8 @@ public class KeyBoardAdapter extends InputAdapter {
         inputState.setAngle(angle.angleDeg() - 90);
         return inputState;
     }
+
+    public InputState getInputState() {
+        return inputState;
+    }
 }

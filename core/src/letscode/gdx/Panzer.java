@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import letscode.gdx.emitter.Emitter;
 
 public class Panzer {
 
@@ -16,6 +17,8 @@ public class Panzer {
 
     private final Texture texture;
     private final TextureRegion textureRegion;
+
+    public Emitter emitter = new Emitter();
 
     public Panzer(String textureName, float x, float y) {
         texture = new Texture(textureName);

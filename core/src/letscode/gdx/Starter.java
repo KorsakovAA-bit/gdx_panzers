@@ -2,10 +2,14 @@ package letscode.gdx;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ScreenUtils;
+import letscode.gdx.emitter.Emitter;
+import letscode.gdx.emitter.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +25,8 @@ public class Starter extends ApplicationAdapter {
 	private Integer count = 1;
 	private MessageSender messageSender;
 
+	private Texture bulletTexture;
+
 	public Starter(InputState inputState) {
 		this.inputProcessor = new KeyBoardAdapter(inputState);
 	}
@@ -31,6 +37,7 @@ public class Starter extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		Panzer player = new Panzer("player.png", 200, 300);
 		panzers.put(meID, player);
+		bulletTexture = new Texture("bullet.png");
 //
 //		enemies.addAll(IntStream.range(0, 15).mapToObj(num -> {
 //			int x = MathUtils.random(Gdx.graphics.getWidth());
@@ -47,7 +54,25 @@ public class Starter extends ApplicationAdapter {
 		batch.begin();
 
 		for (String key: panzers.keys()) {
-			panzers.get(key).render(batch);
+			Panzer panzer = panzers.get(key);
+			InputState inputState = inputProcessor.getInputState();
+
+			Emitter emitter = panzer.emitter;
+			emitter.setAngle(inputState.getAngle() + 90);
+			emitter.getPosition().set(panzer.getOrigin());
+			float deltaTime = Gdx.graphics.getDeltaTime();
+
+			if(inputState.isFirePressed()){
+				emitter.start(deltaTime);
+			}
+
+			emitter.act(deltaTime);
+			for (Particle particle: emitter.getParticles()){
+				Vector2 position = particle.getPosition();
+				batch.draw(bulletTexture, position.x - 8, position.y - 8);
+			}
+
+			panzer.render(batch);
 		}
 //		enemies.forEach(enemy -> {
 //			enemy.render(batch);
